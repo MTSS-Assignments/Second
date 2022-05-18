@@ -3,11 +3,11 @@
 // Luca Busacca 1227589
 ////////////////////////////////////////////////////////////////////
 
-package main.java.it.unipd.mtss.business;
+package it.unipd.mtss.business;
 import java.time.LocalTime;
 import java.util.List;
 
-import main.java.it.unipd.mtss.business.exception.BillException;
+import it.unipd.mtss.business.exception.*;
 import it.unipd.mtss.model.EItem;
 import it.unipd.mtss.model.User;
 
