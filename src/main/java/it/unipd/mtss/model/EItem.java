@@ -5,7 +5,7 @@
 package it.unipd.mtss.model;
 
 public class EItem {
-    private enum item {
+    public enum item {
         Processor,
         Motherboard,
         Mouse,
@@ -17,12 +17,17 @@ public class EItem {
     private double price;
 
     public EItem(item itType, String n, double p) {
-        this.itemType = itType;
-        this.name = n;
+        if (itType != null)
+            this.itemType = itType;
+        else throw new IllegalArgumentException("Il campo itType non può essere null");
+
+        if (n != null && n != "")
+            this.name = n;
+        else throw new IllegalArgumentException("il campo name non può essere vuoto");
+
         if (p >= 0)
             this.price = p;
-        else
-            throw new IllegalArgumentException("Il prezzo deve avre un valore >= 0");
+        else throw new IllegalArgumentException("Il prezzo deve avre un valore >= 0");
     }
 
     public item getItemType() {
