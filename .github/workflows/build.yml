@@ -17,3 +17,6 @@ jobs:
         cache: 'maven'
     - name: Build with Maven
       run: mvn -B install --file pom.xml
+    - name: Coveralls coverage reports
+      run: mvn coveralls:report --define repoToken=${{secrets.COVERALL_TOKEN}}
+
