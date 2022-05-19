@@ -5,11 +5,14 @@
 
 package it.unipd.mtss.business;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import it.unipd.mtss.model.EItem.item;
+import it.unipd.mtss.business.exception.BillException;
 import it.unipd.mtss.model.EItem;
+import it.unipd.mtss.model.User;
 
 import org.junit.Test;
 import org.junit.Before;
@@ -54,5 +57,36 @@ public class BillTest {
     public void testScontoProcessoriFail() {
         double sconto = BillImpl.scontoProcessori(order1);
         assertEquals(0, sconto, 0.0);
+    }
+
+    @Test
+    public void testTotalPrice() {
+        List<EItem> lista = new ArrayList<EItem>();
+        lista.add(new EItem(EItem.item.Processor, "processore", 100));
+        lista.add(new EItem(EItem.item.Processor, "processore2", 100));
+        
+        BillImpl impl = new BillImpl();
+        LocalDate nascita = LocalDate.of(1997,11,30);
+        User user = new User("Luca", "Busacca", nascita);
+        
+        try {
+            impl.getOrderPrice(lista, user); 
+        } catch (BillException e) {
+            assertEquals("lista null", e.getMessage());
+        }  
+    }
+
+    @Test
+    public void testTotalPriceNullList() {
+        List<EItem> lista = null;
+        BillImpl impl = new BillImpl();
+        LocalDate nascita = LocalDate.of(1997,11,30);
+        User user = new User("Luca", "Busacca", nascita);
+        
+        try {
+            impl.getOrderPrice(lista, user); 
+        } catch (BillException e) {
+            assertEquals("lista null", e.getMessage());
+        }  
     }
 }

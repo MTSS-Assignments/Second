@@ -20,12 +20,27 @@ public class BillImpl implements Bill{
     private User _user;
     private LocalDate _date;
 
+    //costruttore
     // public BillImpl(List<EItem> list, User user, LocalDate date){
     //     this._list = list;
     //     this._user = user;
     //     this._date = date;
     // }
 
+    // Dato un elenco di articoli (Processori, Schede Madri, Tastiere, Mouse) calcolare il totale
+    private double totalPrice(List<EItem> items) throws BillException{
+        double total = 0;
+        if (items != null) {
+            for (EItem item: items) {
+                total = total + item.getPrice();
+            }
+        } else {
+            throw new BillException("lista null");
+        }
+        return total;
+    }
+
+    // Se vengono ordinati più di 5 Processore viene fatto uno sconto del 50% sul prezzo del Processori meno caro
     public static double scontoProcessori(List<EItem> ordine){
         int count = 0;
         double cheapest = Double.POSITIVE_INFINITY;
@@ -40,9 +55,9 @@ public class BillImpl implements Bill{
         
         return 0;
     }
-
-    public double getOrderPrice(List<EItem> itemsOrdered, User user) 
-            throws BillException{
-                return 0;
-            }
+    
+    @Override
+    public double getOrderPrice(List<EItem> itemsOrdered, User user) throws BillException {
+        return totalPrice(itemsOrdered);
+    }
 }
