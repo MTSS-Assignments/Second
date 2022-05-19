@@ -3,5 +3,8 @@
 #Maven
 target
 
+#VSCode
+.vscode
+
 #MacOs
 .DS_Store
