@@ -15,12 +15,15 @@ import it.unipd.mtss.model.EItem;
 import it.unipd.mtss.model.User;
 
 import org.junit.Test;
+import org.hamcrest.core.AnyOf;
 import org.junit.Before;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 public class BillTest {
     private List<EItem> order = new ArrayList<EItem>();
     private List<EItem> order1 = new ArrayList<EItem>();
+    private List<EItem> large = new ArrayList<EItem>();
 
     @Before
     public void inizializeOrder() {
@@ -46,9 +49,41 @@ public class BillTest {
         order.add(new EItem(item.Keyboard, "Tastiera 5", 119.99));
 
         order1.add(new EItem(item.Keyboard, "Tastiera 5", 119.99));
+
+        large.add(new EItem(item.Processor, "Processore 2", 269.99));
+        large.add(new EItem(item.Processor, "Processore 1", 250.00));
+        large.add(new EItem(item.Processor, "Processore 3", 299.99));
+        large.add(new EItem(item.Processor, "Processore 4", 349.99));
+        large.add(new EItem(item.Processor, "Processore 5", 469.99));
+        large.add(new EItem(item.Mouse, "Mouse 1", 14.99));
+        large.add(new EItem(item.Mouse, "Mouse 2", 19.99));
+        large.add(new EItem(item.Mouse, "Mouse 3", 49.99));
+        large.add(new EItem(item.Mouse, "Mouse 4", 29.99));
+        large.add(new EItem(item.Mouse, "Mouse 5", 89.99));
+        large.add(new EItem(item.Motherboard, "SchedaMadre 1", 149.99));
+        large.add(new EItem(item.Motherboard, "SchedaMadre 2", 129.99));
+        large.add(new EItem(item.Motherboard, "SchedaMadre 3", 199.99));
+        large.add(new EItem(item.Motherboard, "SchedaMadre 4", 249.99));
+        large.add(new EItem(item.Motherboard, "SchedaMadre 5", 289.99));
+        large.add(new EItem(item.Keyboard, "Tastiera 1", 89.99));
+        large.add(new EItem(item.Keyboard, "Tastiera 2", 49.99));
+        large.add(new EItem(item.Keyboard, "Tastiera 3", 29.99));
+        large.add(new EItem(item.Keyboard, "Tastiera 4", 99.99));
+        large.add(new EItem(item.Keyboard, "Tastiera 5", 119.99));
+        large.add(new EItem(item.Motherboard, "SchedaMadre 4", 249.99));
+        large.add(new EItem(item.Motherboard, "SchedaMadre 5", 289.99));
+        large.add(new EItem(item.Keyboard, "Tastiera 1", 89.99));
+        large.add(new EItem(item.Keyboard, "Tastiera 2", 49.99));
+        large.add(new EItem(item.Processor, "Processore 4", 349.99));
+        large.add(new EItem(item.Processor, "Processore 5", 469.99));
+        large.add(new EItem(item.Mouse, "Mouse 1", 14.99));
+        large.add(new EItem(item.Mouse, "Mouse 2", 19.99));
+        large.add(new EItem(item.Processor, "Processore 5", 469.99));
+        large.add(new EItem(item.Mouse, "Mouse 1", 14.99));
+        large.add(new EItem(item.Mouse, "Mouse 3", 49.99));
     }
 
-    // PRIMO REQUISITO
+    //  #1
     @Test
     public void testTotalPrice() {
         List<EItem> lista = new ArrayList<EItem>();
@@ -80,7 +115,7 @@ public class BillTest {
         }
     }
 
-    // SECONDO REQUISITO
+    //  #2
     @Test
     public void testScontoProcessori() {
         double sconto = BillImpl.scontoProcessori(order);
@@ -93,7 +128,7 @@ public class BillTest {
         assertEquals(0, sconto, 0.0);
     }
 
-    // QUARTO REQUISITO
+    //  #4
     @Test
     public void testGiftCheapest() {
         double cheapest = BillImpl.giftCheapest(order);
@@ -104,6 +139,21 @@ public class BillTest {
     public void testGiftCheapestFail() {
         double cheapest = BillImpl.giftCheapest(order1);
         assertEquals(cheapest, 0, 0);
+    }
+
+    //  #6
+    @Test
+    public void testMaxThirty() {
+        try {
+            BillImpl.maxThirty(large);
+        } catch (BillException e) {
+            assertEquals("Non è possibile avere un'ordinazione con più di 30 elementi", e.getMessage());
+        }
+        try {
+            BillImpl.maxThirty(order);
+        } catch (BillException e) {
+            assertEquals("Non è possibile avere un'ordinazione con più di 30 elementi", e.getMessage());
+        }
     }
 
 }
