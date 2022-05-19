@@ -55,6 +55,23 @@ public class BillImpl implements Bill{
         
         return 0;
     }
+
+        // Se vengono ordinati lo stesso numero di Mouse e Tastiere viene regalato l’articolo meno caro
+        public static double giftCheapest(List<EItem> ordine){
+            int countMouses = 0, countKeyboards = 0;
+            double cheapest = Double.POSITIVE_INFINITY;
+            for (EItem it : ordine){
+                if (it.getItemType() == EItem.item.Mouse) { countMouses++; }
+                
+                if (it.getItemType() == EItem.item.Keyboard) { countKeyboards++; }
+
+                if (cheapest == Double.POSITIVE_INFINITY || cheapest > it.getPrice()) { cheapest = it.getPrice(); }
+            }
+            
+            if (countMouses == countKeyboards) {return  cheapest; }
+            
+            return 0;
+        }
     
     @Override
     public double getOrderPrice(List<EItem> itemsOrdered, User user) throws BillException {

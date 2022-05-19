@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 public class BillTest {
     private List<EItem> order = new ArrayList<EItem>();
     private List<EItem> order1 = new ArrayList<EItem>();
+
     @Before
     public void inizializeOrder() {
         order.add(new EItem(item.Processor, "Processore 2", 269.99));
@@ -47,6 +48,39 @@ public class BillTest {
         order1.add(new EItem(item.Keyboard, "Tastiera 5", 119.99));
     }
 
+    // PRIMO REQUISITO
+    @Test
+    public void testTotalPrice() {
+        List<EItem> lista = new ArrayList<EItem>();
+        lista.add(new EItem(EItem.item.Processor, "processore", 100));
+        lista.add(new EItem(EItem.item.Processor, "processore2", 100));
+
+        BillImpl impl = new BillImpl();
+        LocalDate nascita = LocalDate.of(1997, 11, 30);
+        User user = new User("Luca", "Busacca", nascita);
+
+        try {
+            impl.getOrderPrice(lista, user);
+        } catch (BillException e) {
+            assertEquals("lista null", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testTotalPriceNullList() {
+        List<EItem> lista = null;
+        BillImpl impl = new BillImpl();
+        LocalDate nascita = LocalDate.of(1997, 11, 30);
+        User user = new User("Luca", "Busacca", nascita);
+
+        try {
+            impl.getOrderPrice(lista, user);
+        } catch (BillException e) {
+            assertEquals("lista null", e.getMessage());
+        }
+    }
+
+    // SECONDO REQUISITO
     @Test
     public void testScontoProcessori() {
         double sconto = BillImpl.scontoProcessori(order);
@@ -59,34 +93,17 @@ public class BillTest {
         assertEquals(0, sconto, 0.0);
     }
 
+    // QUARTO REQUISITO
     @Test
-    public void testTotalPrice() {
-        List<EItem> lista = new ArrayList<EItem>();
-        lista.add(new EItem(EItem.item.Processor, "processore", 100));
-        lista.add(new EItem(EItem.item.Processor, "processore2", 100));
-        
-        BillImpl impl = new BillImpl();
-        LocalDate nascita = LocalDate.of(1997,11,30);
-        User user = new User("Luca", "Busacca", nascita);
-        
-        try {
-            impl.getOrderPrice(lista, user); 
-        } catch (BillException e) {
-            assertEquals("lista null", e.getMessage());
-        }  
+    public void testGiftCheapest() {
+        double cheapest = BillImpl.giftCheapest(order);
+        assertEquals(cheapest, 14.99, 0);
     }
 
     @Test
-    public void testTotalPriceNullList() {
-        List<EItem> lista = null;
-        BillImpl impl = new BillImpl();
-        LocalDate nascita = LocalDate.of(1997,11,30);
-        User user = new User("Luca", "Busacca", nascita);
-        
-        try {
-            impl.getOrderPrice(lista, user); 
-        } catch (BillException e) {
-            assertEquals("lista null", e.getMessage());
-        }  
+    public void testGiftCheapestFail() {
+        double cheapest = BillImpl.giftCheapest(order1);
+        assertEquals(cheapest, 0, 0);
     }
+
 }
