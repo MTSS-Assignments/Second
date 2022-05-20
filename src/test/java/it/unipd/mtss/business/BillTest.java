@@ -206,6 +206,40 @@ public class BillTest {
         }
     }
 
+    //  #7
+    @Test
+    public void testAddFees() throws BillException{
+        List<EItem> less_than_ten = new ArrayList<EItem>();
+        less_than_ten.add(new EItem(EItem.item.Keyboard, "tastiera 1", 1));
+        less_than_ten.add(new EItem(EItem.item.Keyboard, "tastiera 2", 2));
+
+        double total = BillImpl.addFees(less_than_ten); 
+
+        assertEquals(5, total, 0.0);
+    }
+
+
+    @Test
+    public void testFailAddFees() throws BillException{
+        List<EItem> less_than_ten = new ArrayList<EItem>();
+        less_than_ten.add(new EItem(EItem.item.Keyboard, "tastiera 1", 10));
+        less_than_ten.add(new EItem(EItem.item.Keyboard, "tastiera 2", 10));
+
+        double total = BillImpl.addFees(less_than_ten); 
+
+        assertEquals(20, total, 0.0);
+    }
+
+    @Test
+    public void testNullAddFees() {
+        BillException thrown = assertThrows(BillException.class, () -> {
+            BillImpl.addFees(null);
+        });
+
+        assertEquals("lista null", thrown.getMessage());
+    }
+
+
     //  #8
     @Test
     public void testRndGiftCount() throws BillException {

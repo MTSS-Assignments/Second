@@ -151,10 +151,21 @@ public class BillImpl implements Bill {
     }
 
     /**************************************************************************************
-    *****    
-    *****    
+    *****    Se l’importo totale è inferiore a 10 € viene aggiunta una commissione di 2 €
+    *****    #7
     **************************************************************************************/
+    public static double addFees(List<EItem> orders) throws BillException{
+        double total = 0;
+        if (orders == null) throw new BillException("lista null");
+        for (EItem item: orders) {
+            total += item.getPrice();
+        }
 
+        if (total < 10) {
+            return total + 2;
+        }
+        return total;
+    }
 
     /*************************************************************************************
     ****    Prevedere la possibilità di regalare, in modo casuale, 10 ordini effettuati
