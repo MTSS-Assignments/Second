@@ -23,7 +23,7 @@ public class EItem {
             throw new IllegalArgumentException("Il campo itType non può essere null");
         }
 
-        if (n != null && n != ""){
+        if (n != null &&  !n.equals("")){
             this.name = n;
         } else {
             throw new IllegalArgumentException("Il campo name non può essere vuoto");

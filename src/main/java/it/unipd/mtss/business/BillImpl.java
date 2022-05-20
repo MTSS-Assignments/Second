@@ -5,6 +5,7 @@
 
 package it.unipd.mtss.business;
 
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -126,8 +127,7 @@ public class BillImpl implements Bill {
         
 
         while(remained > 0 && count > 0) {
-            Random rand = new Random();
-            BillImpl randomElement = aux.get(rand.nextInt(remained));
+            BillImpl randomElement = aux.get(new SecureRandom().nextInt(remained));
             totale += randomElement.getOrderPrice(randomElement._list, randomElement._user);
             remained--;
             count--;
