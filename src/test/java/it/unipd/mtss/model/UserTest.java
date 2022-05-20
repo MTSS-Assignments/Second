@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import org.junit.Test;
 import org.junit.Before;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;;
 
 public class UserTest {
 
@@ -38,45 +39,58 @@ public class UserTest {
         assertEquals(LocalDate.of(1980, 1, 1), userDateOfBirth);
     }
 
-    // TEST FARLOCCHISSIMISSIMISSIMISSIMISSIMO
     @Test
     public void testGetId() {
-        assertEquals(user.getId(), user.getId());
+        assertEquals(user.getId(), user.id);
     }
 
     @Test
-    public void testNullName() {
-        try {
-            new User(null, "null", LocalDate.of(1980, 1, 1));
-        } catch (IllegalArgumentException e) {
-            assertEquals("Inserire il Nome.", e.getMessage());
-        }
+    public void testNullNameException() {
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+            User user = new User(null, "null", LocalDate.of(1980, 1, 1));
+            String name = user.getName();
+        });
+        
+        assertEquals("Inserire il Nome.", thrown.getMessage());
     }
 
     @Test
-    public void testNullSurname() {
-        try {
-            new User("null", null, LocalDate.of(1980, 1, 1));
-        } catch (IllegalArgumentException e) {
-            assertEquals("Inserire il Cognome.", e.getMessage());
-        }
+    public void testNullSurnameException() {
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+            User user = new User("null", null, LocalDate.of(1980, 1, 1));
+            String name = user.getSurname();
+        });
+
+        assertEquals("Inserire il Cognome.", thrown.getMessage());
     }
 
     @Test
-    public void testNullDateOfBirth() {
-        try {
-            new User("null", "null", null);
-        } catch (IllegalArgumentException e) {
-            assertEquals("Inserire la Data di nascita.", e.getMessage());
-        }
+    public void testNullDateOfBirthException() {
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+            User user = new User("null", "null", null);
+            LocalDate birth = user.getDate_of_birth();
+        });
+
+        assertEquals("Inserire la Data di nascita.", thrown.getMessage());
     }
 
     @Test
-    public void testLegalDateOfBirth() {
-        try {
-            new User("null", "null", LocalDate.of(3000, 1, 1));
-        } catch (IllegalArgumentException e) {
-            assertEquals("La data di nascita deve essere precedente alla data odierna.", e.getMessage());
-        }
+    public void testTooOldDateOfBirthException() {
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+            User user = new User("null", "null", LocalDate.of(1871, 1, 1));
+            LocalDate birth = user.getDate_of_birth();
+        });
+
+        assertEquals("La data di nascita inserita è troppo indietro nel tempo.", thrown.getMessage());
+    }
+
+    @Test
+    public void testIllegalDateOfBirthException() {
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+            User user = new User("null", "null", LocalDate.of(3980, 1, 1));
+            LocalDate birth = user.getDate_of_birth();
+        });
+
+        assertEquals("La data di nascita deve essere precedente alla data odierna.", thrown.getMessage());
     }
 }

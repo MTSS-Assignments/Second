@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
 public class BillTest {
+    private List<EItem> orderNull = null;
     private List<EItem> order = new ArrayList<EItem>();
     private List<EItem> order1 = new ArrayList<EItem>();
     private List<EItem> large = new ArrayList<EItem>();
@@ -84,8 +85,7 @@ public class BillTest {
         large.add(new EItem(item.Mouse, "Mouse 3", 49.99));
     }
 
-
-    //  #1
+    // #1
     @Test
     public void testTotalPrice() {
         List<EItem> lista = new ArrayList<EItem>();
@@ -94,7 +94,7 @@ public class BillTest {
 
         LocalDate nascita = LocalDate.of(1997, 11, 30);
         User user = new User("Luca", "Busacca", nascita);
-        BillImpl impl = new BillImpl(order,user,LocalDateTime.of(1980, 01, 01, 19, 00, 00));
+        BillImpl impl = new BillImpl(order, user, LocalDateTime.of(1980, 01, 01, 19, 00, 00));
 
         try {
             impl.getOrderPrice(lista, user);
@@ -108,7 +108,7 @@ public class BillTest {
         List<EItem> lista = null;
         LocalDate nascita = LocalDate.of(1997, 11, 30);
         User user = new User("Luca", "Busacca", nascita);
-        BillImpl impl = new BillImpl(order, user, LocalDateTime.of(1980,1,1,19,0,0));
+        BillImpl impl = new BillImpl(order, user, LocalDateTime.of(1980, 1, 1, 19, 0, 0));
 
         try {
             impl.getOrderPrice(lista, user);
@@ -117,55 +117,89 @@ public class BillTest {
         }
     }
 
-    //  #2
+    // #2
     @Test
-    public void testScontoProcessori() {
+    public void testScontoProcessori() throws BillException {
         double sconto = BillImpl.scontoProcessori(order);
         assertEquals(125, sconto, 0.0);
     }
 
     @Test
-    public void testScontoProcessoriFail() {
+    public void testScontoProcessoriNotApplied() throws BillException {
         double sconto = BillImpl.scontoProcessori(order1);
         assertEquals(0, sconto, 0.0);
     }
 
-    //  #4
     @Test
-    public void testGiftCheapest() {
+    public void testScontoProcessoriNullListException() {
+        BillException thrown = assertThrows(BillException.class, () -> {
+            double sconto = BillImpl.scontoProcessori(orderNull);
+        });
+
+        assertEquals("lista null", thrown.getMessage());
+    }
+
+    // #4
+    @Test
+    public void testGiftCheapest() throws BillException {
         double cheapest = BillImpl.giftCheapest(order);
         assertEquals(cheapest, 14.99, 0);
     }
 
     @Test
-    public void testGiftCheapestFail() {
+    public void testGiftCheapestFail() throws BillException {
         double cheapest = BillImpl.giftCheapest(order1);
         assertEquals(cheapest, 0, 0);
     }
 
-    //  #6
     @Test
-    public void testMaxThirty() {
-        try {
-            BillImpl.maxThirty(large);
-        } catch (BillException e) {
-            assertEquals("Non è possibile avere un'ordinazione con più di 30 elementi", e.getMessage());
-        }
-        try {
-            BillImpl.maxThirty(order);
-        } catch (BillException e) {
-            assertEquals("Non è possibile avere un'ordinazione con più di 30 elementi", e.getMessage());
-        }
+    public void testGiftCheapestNullListException() {
+        BillException thrown = assertThrows(BillException.class, () -> {
+            double cheapest = BillImpl.giftCheapest(orderNull);
+        });
+
+        assertEquals("lista null", thrown.getMessage());
     }
 
-    //  #8
+    // #6
     @Test
-    public void testRndGiftCount() throws BillException {
+    public void testMaxThirtyException() {
+        BillException thrown = assertThrows(BillException.class, () -> {
+            BillImpl.maxThirty(large);
+        });
+
+        assertEquals("Non è possibile avere un'ordinazione con più di 30 elementi", thrown.getMessage());
+    }
+
+    @Test
+    public void testMaxThirtyNullListException() {
+        BillException thrown = assertThrows(BillException.class, () -> {
+            BillImpl.maxThirty(orderNull);
+        });
+
+        assertEquals("lista null", thrown.getMessage());
+    }
+
+    @Test
+    public void testMaxThirtySuccess() throws BillException {
+        boolean check = false;
+        BillImpl.maxThirty(order);
+        check = true;
+        assertEquals(check, true);
+    }
+
+
+
+    // #8
+    @Test
+    public void testRndGiftCounturEqualsToCount() throws BillException {
         int count = 15;
         List<BillImpl> todayReport = new ArrayList<BillImpl>();
         while (count > 0) {
-            todayReport.add(new BillImpl (order1, new User("Cod","Ing",LocalDate.of(2008,01,01)), LocalDateTime.of(2022,05,19,19,05)));
-            todayReport.add(new BillImpl (order, new User("Cod","Ing",LocalDate.of(1980,01,01)), LocalDateTime.of(2022,05,22,15,25)));
+            todayReport.add(new BillImpl(order1, new User("Cod", "Ing", LocalDate.of(2008, 01, 01)),
+                    LocalDateTime.of(2022, 05, 19, 19, 05)));
+            todayReport.add(new BillImpl(order, new User("Cod", "Ing", LocalDate.of(1980, 01, 01)),
+                    LocalDateTime.of(2022, 05, 22, 15, 25)));
             count--;
         }
         double totale = BillImpl.rndGift(todayReport);
@@ -173,10 +207,38 @@ public class BillTest {
     }
 
     @Test
-    public void testRndGiftRemained() throws BillException {
+    public void testRndGiftCounterEqualsToRemained() throws BillException {
         List<BillImpl> todayReport = new ArrayList<BillImpl>();
-        todayReport.add(new BillImpl (order1, new User("Cod","Ing",LocalDate.of(2008,01,01)), LocalDateTime.of(2022,05,19,19,05)));
+        todayReport.add(new BillImpl(order1, new User("Cod", "Ing", LocalDate.of(2008, 01, 01)),
+                LocalDateTime.of(2022, 05, 19, 19, 05)));
         double totale = BillImpl.rndGift(todayReport);
         assertEquals(totale, 119.99, 0.1);
+    }
+
+    @Test
+    public void testRndGiftWithoutMinorsInList() throws BillException {
+        List<BillImpl> todayReport = new ArrayList<BillImpl>();
+        todayReport.add(new BillImpl(order1, new User("Cod", "Ing", LocalDate.of(1980, 01, 01)),
+                LocalDateTime.of(2022, 05, 19, 19, 05)));
+                todayReport.add(new BillImpl(order1, new User("Cod", "Ing", LocalDate.of(1980, 01, 01)),
+                LocalDateTime.of(2022, 05, 19, 19, 05)));
+                todayReport.add(new BillImpl(order1, new User("Cod", "Ing", LocalDate.of(1980, 01, 01)),
+                LocalDateTime.of(2022, 05, 19, 19, 05)));
+                todayReport.add(new BillImpl(order1, new User("Cod", "Ing", LocalDate.of(1980, 01, 01)),
+                LocalDateTime.of(2022, 05, 19, 19, 05)));
+
+        double totale = BillImpl.rndGift(todayReport);
+        
+        assertEquals(totale, 0, 0);
+    }
+
+    @Test
+    public void testRndGiftNullListException() {
+        List<BillImpl> todayReport = null;
+        BillException thrown = assertThrows(BillException.class, () -> {
+            BillImpl.rndGift(todayReport);
+        });
+
+        assertEquals("Nessun ordine ricevuto per oggi.", thrown.getMessage());
     }
 }
