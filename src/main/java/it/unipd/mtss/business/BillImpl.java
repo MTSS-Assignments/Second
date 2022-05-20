@@ -198,6 +198,30 @@ public class BillImpl implements Bill {
 
     @Override
     public double getOrderPrice(List<EItem> itemsOrdered, User user) throws BillException {
-        return totalPrice(itemsOrdered);
+        // #6
+        maxThirty(itemsOrdered);
+        
+        // #1
+        double initalTotal = totalPrice(itemsOrdered);
+
+        // #2
+        initalTotal -= scontoProcessori(itemsOrdered);
+
+        // #3
+        initalTotal -= giftCheapestMouse(itemsOrdered);
+
+        // #4
+        initalTotal -= giftCheapest(itemsOrdered);
+
+        // #5
+        initalTotal = tenPercentDiscount(itemsOrdered);
+
+        // #7
+        initalTotal = addFees(itemsOrdered);
+
+        // #8
+        // Da controllare la funzone rndGift
+
+        return initalTotal;
     }
 }
