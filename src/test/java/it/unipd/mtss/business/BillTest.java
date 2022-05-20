@@ -2,11 +2,10 @@
 // Marco Bustaffa 1226301
 // Luca Busacca 1227589
 ////////////////////////////////////////////////////////////////////
-
 package it.unipd.mtss.business;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,15 +15,21 @@ import it.unipd.mtss.model.EItem;
 import it.unipd.mtss.model.User;
 
 import org.junit.Test;
+import org.hamcrest.core.AnyOf;
 import org.junit.Before;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
 public class BillTest {
+    private List<EItem> orderNull = null;
     private List<EItem> order = new ArrayList<EItem>();
     private List<EItem> order1 = new ArrayList<EItem>();
+    private List<EItem> orderElementEleven = new ArrayList<EItem>();
     private List<EItem> large = new ArrayList<EItem>();
+    private List<EItem> threeMouses = new ArrayList<EItem>();
+    private User minorUser = new User("", "", LocalDate.now().minus(14, ChronoUnit.YEARS));
+    private User eighteen = new User("", "", LocalDate.now().minus(18, ChronoUnit.YEARS));
+    private List<EItem> moreTenMouses = new ArrayList<EItem>();
 
     @Before
     public void inizializeOrders() {
@@ -33,8 +38,8 @@ public class BillTest {
         order.add(new EItem(item.Processor, "Processore 3", 299.99));
         order.add(new EItem(item.Processor, "Processore 4", 349.99));
         order.add(new EItem(item.Processor, "Processore 5", 469.99));
-        order.add(new EItem(item.Mouse, "Mouse 1", 14.99));
         order.add(new EItem(item.Mouse, "Mouse 2", 19.99));
+        order.add(new EItem(item.Mouse, "Mouse 1", 14.99));
         order.add(new EItem(item.Mouse, "Mouse 3", 49.99));
         order.add(new EItem(item.Mouse, "Mouse 4", 29.99));
         order.add(new EItem(item.Mouse, "Mouse 5", 89.99));
@@ -50,6 +55,14 @@ public class BillTest {
         order.add(new EItem(item.Keyboard, "Tastiera 5", 119.99));
 
         order1.add(new EItem(item.Keyboard, "Tastiera 5", 119.99));
+
+        for (int i = 0; i < 11; i++) {
+            orderElementEleven.add(new EItem(item.Keyboard, "Tastiera", 1));
+        }
+
+        for (int i = 0; i < 3; i++) {
+            threeMouses.add(new EItem(item.Mouse, "MouseX", 10));
+        }
 
         large.add(new EItem(item.Processor, "Processore 2", 269.99));
         large.add(new EItem(item.Processor, "Processore 1", 250.00));
@@ -82,13 +95,19 @@ public class BillTest {
         large.add(new EItem(item.Processor, "Processore 5", 469.99));
         large.add(new EItem(item.Mouse, "Mouse 1", 14.99));
         large.add(new EItem(item.Mouse, "Mouse 3", 49.99));
-        large.add(new EItem(item.Mouse, "Mouse 6", 10.00));
-        large.add(new EItem(item.Mouse, "Mouse meno caro", 1));
+
+        for(int i = 0; i < 4; i++) {
+            moreTenMouses.add(new EItem(item.Mouse, "MouseX", 100));
+
+            moreTenMouses.add(new EItem(item.Mouse, "MouseY", 50));
+            
+            moreTenMouses.add(new EItem(item.Mouse, "MouseZ", 25));
+        }
     }
 
     // #1
     @Test
-    public void testTotalPrice() throws BillException{
+    public void testTotalPrice() throws BillException {
         List<EItem> lista = new ArrayList<EItem>();
         lista.add(new EItem(EItem.item.Processor, "processore", 100));
         lista.add(new EItem(EItem.item.Processor, "processore2", 100));
@@ -102,39 +121,47 @@ public class BillTest {
         BillException thrown = assertThrows(BillException.class, () -> {
             BillImpl.totalPrice(null);
         });
-        
+
         assertEquals("lista null", thrown.getMessage());
     }
 
     // #2
     @Test
-    public void testScontoProcessori() {
+    public void testScontoProcessori() throws BillException {
         double sconto = BillImpl.scontoProcessori(order);
         assertEquals(125, sconto, 0.0);
     }
 
     @Test
-    public void testScontoProcessoriFail() {
+    public void testScontoProcessoriNotApplied() throws BillException {
         double sconto = BillImpl.scontoProcessori(order1);
         assertEquals(0, sconto, 0.0);
     }
 
+    @Test
+    public void testScontoProcessoriNullListException() {
+        BillException thrown = assertThrows(BillException.class, () -> {
+            double sconto = BillImpl.scontoProcessori(orderNull);
+        });
+
+        assertEquals("lista null", thrown.getMessage());
+    }
+
     // #3
     @Test
-    public void testGiftCheapestMouse() {
-        try {
-            double cheapestMouse = BillImpl.giftCheapestMouse(large);
-            assertEquals(cheapestMouse, 1, 0.0);
-        } catch (BillException exception) {}
+    public void testGiftCheapestMouse() throws BillException {
+        double cheapestMouse = BillImpl.giftCheapestMouse(moreTenMouses);
+
+        assertEquals(25, cheapestMouse, 0);
     }
 
     @Test
-    public void testNoCheapestMouseToGift() throws BillException{
+    public void testNoCheapestMouseToGift() throws BillException {
         List<EItem> not_ten_mouse = new ArrayList<EItem>();
         not_ten_mouse.add(new EItem(EItem.item.Keyboard, "non mouse", 100));
 
         double cheapestMouse = BillImpl.giftCheapestMouse(not_ten_mouse);
-        assertEquals(cheapestMouse, 0, 0.0);
+        assertEquals(0, cheapestMouse, 0.0);
     }
 
     @Test
@@ -145,38 +172,47 @@ public class BillTest {
         assertEquals("lista null", thrown.getMessage());
     }
 
-    //  #4
+    // #4
     @Test
-    public void testGiftCheapest() {
+    public void testGiftCheapest() throws BillException {
         double cheapest = BillImpl.giftCheapest(order);
-        assertEquals(cheapest, 14.99, 0);
+        assertEquals(14.99, cheapest, 0);
     }
 
     @Test
-    public void testGiftCheapestFail() {
+    public void testGiftCheapestFail() throws BillException {
         double cheapest = BillImpl.giftCheapest(order1);
-        assertEquals(cheapest, 0, 0);
+        assertEquals(0, cheapest, 0);
     }
 
-    //  #5
     @Test
-    public void testTenPercentDiscount() throws BillException{
+    public void testGiftCheapestNullListException() {
+        BillException thrown = assertThrows(BillException.class, () -> {
+            double cheapest = BillImpl.giftCheapest(orderNull);
+        });
+
+        assertEquals("lista null", thrown.getMessage());
+    }
+
+    // #5
+    @Test
+    public void testTenPercentDiscount() throws BillException {
         List<EItem> lista = new ArrayList<EItem>();
         lista.add(new EItem(EItem.item.Keyboard, "non mouse", 500));
         lista.add(new EItem(EItem.item.Keyboard, "tastiera 2", 550));
 
         double discounted_price = BillImpl.tenPercentDiscount(lista);
-        assertEquals(discounted_price, 945, 0.0);
+        assertEquals(945, discounted_price, 0.0);
     }
 
     @Test
-    public void testNotTenPercentDiscount() throws BillException{
+    public void testNotTenPercentDiscount() throws BillException {
         List<EItem> lista = new ArrayList<EItem>();
         lista.add(new EItem(EItem.item.Keyboard, "non mouse", 500));
         lista.add(new EItem(EItem.item.Keyboard, "tastiera 2", 400));
 
         double discounted_price = BillImpl.tenPercentDiscount(lista);
-        assertEquals(discounted_price, 900, 0.0);
+        assertEquals(900, discounted_price, 0.0);
     }
 
     @Test
@@ -188,37 +224,52 @@ public class BillTest {
         assertEquals("lista null", thrown.getMessage());
     }
 
-    //  #6
+    // #6
     @Test
-    public void testMaxThirty() throws BillException {
-        BillImpl.maxThirty(order1);
+    public void testMaxThirtyException() {
+        BillException thrown = assertThrows(BillException.class, () -> {
+            BillImpl.maxThirty(large);
+        });
+
+        assertEquals("Non è possibile avere un'ordinazione con più di 30 elementi", thrown.getMessage());
     }
 
-    @Test(expected = BillException.class)
-    public void testMaxThirtyException() throws BillException {
-        BillImpl.maxThirty(large);
+    @Test
+    public void testMaxThirtyNullListException() {
+        BillException thrown = assertThrows(BillException.class, () -> {
+            BillImpl.maxThirty(orderNull);
+        });
+
+        assertEquals("lista null", thrown.getMessage());
     }
 
-    //  #7
     @Test
-    public void testAddFees() throws BillException{
+    public void testMaxThirtySuccess() throws BillException {
+        boolean check = false;
+        BillImpl.maxThirty(order);
+        check = true;
+        assertEquals(true, check);
+    }
+
+    // #7
+    @Test
+    public void testAddFees() throws BillException {
         List<EItem> less_than_ten = new ArrayList<EItem>();
         less_than_ten.add(new EItem(EItem.item.Keyboard, "tastiera 1", 1));
         less_than_ten.add(new EItem(EItem.item.Keyboard, "tastiera 2", 2));
 
-        double total = BillImpl.addFees(less_than_ten); 
+        double total = BillImpl.addFees(less_than_ten);
 
         assertEquals(5, total, 0.0);
     }
 
-
     @Test
-    public void testFailAddFees() throws BillException{
+    public void testFailAddFees() throws BillException {
         List<EItem> less_than_ten = new ArrayList<EItem>();
         less_than_ten.add(new EItem(EItem.item.Keyboard, "tastiera 1", 10));
         less_than_ten.add(new EItem(EItem.item.Keyboard, "tastiera 2", 10));
 
-        double total = BillImpl.addFees(less_than_ten); 
+        double total = BillImpl.addFees(less_than_ten);
 
         assertEquals(20, total, 0.0);
     }
@@ -232,28 +283,35 @@ public class BillTest {
         assertEquals("lista null", thrown.getMessage());
     }
 
-
-    //  #8
+    // #8
     @Test
-    public void testRndGiftCount() throws BillException {
-        int count = 15;
-        List<BillImpl> todayReport = new ArrayList<BillImpl>();
-        while (count > 0) {
-            todayReport.add(new BillImpl(order1, new User("Cod", "Ing", LocalDate.of(2008, 01, 01)),
-                    LocalDateTime.of(2022, 05, 19, 19, 05)));
-            todayReport.add(new BillImpl(order, new User("Cod", "Ing", LocalDate.of(1980, 01, 01)),
-                    LocalDateTime.of(2022, 05, 22, 15, 25)));
-            count--;
-        }
-        double totale = BillImpl.rndGift(todayReport);
-        assertEquals(totale, 1199.9, 0.1);
+    public void testRndGiftCounterEqualsToCount() throws BillException {
+
+        double totale = BillImpl.rndGift(orderElementEleven, minorUser);
+
+        assertEquals(10, totale, 0);
     }
 
     @Test
-    public void testRndGiftRemained() throws BillException{
-        List<BillImpl> todayReport = new ArrayList<BillImpl>();
-        todayReport.add(new BillImpl (order1, new User("Cod","Ing",LocalDate.of(2008,01,01)), LocalDateTime.of(2022,05,19,19,05)));
-        double totale = BillImpl.rndGift(todayReport);
-        assertEquals(totale, 119.99, 0.1);
+    public void testRndGiftCounterEqualsToRemained() throws BillException {
+        double totale = BillImpl.rndGift(threeMouses, minorUser);
+
+        assertEquals(30, totale, 0.1);
+    }
+
+    @Test
+    public void testRndGiftWithoutMinorsInList() throws BillException {
+    double totale = BillImpl.rndGift(threeMouses, eighteen);
+
+    assertEquals(0, totale, 0);
+    }
+
+    @Test
+    public void testRndGiftNullListException() {
+        BillException thrown = assertThrows(BillException.class, () -> {
+            BillImpl.rndGift(orderNull, minorUser);
+    });
+
+    assertEquals("lista null", thrown.getMessage());
     }
 }
