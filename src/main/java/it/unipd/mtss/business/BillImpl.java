@@ -15,6 +15,7 @@ import java.util.Random;
 import it.unipd.mtss.business.exception.BillException;
 import it.unipd.mtss.model.EItem;
 import it.unipd.mtss.model.User;
+import it.unipd.mtss.model.EItem.item;
 
 public class BillImpl implements Bill {
 
@@ -35,7 +36,7 @@ public class BillImpl implements Bill {
     *****   Dato un elenco di articoli (Processori, Schede Madri, Tastiere, Mouse)
     *****   calcolare il totale #1
     **************************************************************************************/
-    private double totalPrice(List<EItem> itemsOrdered) throws BillException {
+    public static double totalPrice(List<EItem> itemsOrdered) throws BillException {
         double total = 0;
         if (itemsOrdered != null) {
             for (EItem item : itemsOrdered) {
@@ -71,6 +72,29 @@ public class BillImpl implements Bill {
     }
 
     /**************************************************************************************
+    *****   Se vengono ordinati più di 10 Mouse il meno caro viene regalato
+    *****   #3
+    **************************************************************************************/
+    public static double giftCheapestMouse(List<EItem> orders) throws BillException{
+        int counter = 0;
+        double cheapest = Double.POSITIVE_INFINITY;
+        if (orders == null) throw new BillException("lista null");        
+        for (EItem item: orders) { 
+            if (item.getItemType() == EItem.item.Mouse) {
+                counter++;
+                if (cheapest == Double.POSITIVE_INFINITY || cheapest > item.getPrice()) {
+                    cheapest = item.getPrice();
+                }
+            }
+
+            if (counter > 10) {
+                return cheapest;
+            }
+        }
+        return 0;
+    }
+
+    /**************************************************************************************
     *****   Se vengono ordinati lo stesso numero di Mouse e Tastiere viene regalato
     *****   l’articolo meno caro #4
     **************************************************************************************/
@@ -97,6 +121,25 @@ public class BillImpl implements Bill {
 
         return 0;
     }
+    
+    /**************************************************************************************
+    *****   Se l’importo totale degli articoli supera i 1000 euro viene 
+    *****   fatto uno sconto del 10% sul totale; #5
+    **************************************************************************************/
+    public static double tenPercentDiscount(List<EItem> orders) throws BillException{
+        double totalPrice = 0;
+        if (orders == null) throw new BillException("lista null");
+        for (EItem item : orders) {
+            totalPrice += item.getPrice();
+        }
+
+        if (totalPrice > 1000) {
+            return totalPrice - (totalPrice * 0.1);
+        }
+
+        return totalPrice;
+    }
+
     /**************************************************************************************
     *****    Non è possibile avere un’ordinazione con più di 30 elementi (se accade
     *****    prevedere un messaggio d’errore) #6
@@ -106,6 +149,12 @@ public class BillImpl implements Bill {
             throw new BillException("Non è possibile avere un'ordinazione con più di 30 elementi");
         }
     }
+
+    /**************************************************************************************
+    *****    
+    *****    
+    **************************************************************************************/
+
 
     /*************************************************************************************
     ****    Prevedere la possibilità di regalare, in modo casuale, 10 ordini effettuati

@@ -16,6 +16,8 @@ import it.unipd.mtss.model.EItem;
 import it.unipd.mtss.model.User;
 
 import org.junit.Test;
+import org.junit.internal.runners.statements.ExpectException;
+import org.junit.rules.ExpectedException;
 import org.hamcrest.core.AnyOf;
 import org.junit.Before;
 import static org.junit.Assert.assertEquals;
@@ -82,39 +84,29 @@ public class BillTest {
         large.add(new EItem(item.Processor, "Processore 5", 469.99));
         large.add(new EItem(item.Mouse, "Mouse 1", 14.99));
         large.add(new EItem(item.Mouse, "Mouse 3", 49.99));
+        large.add(new EItem(item.Mouse, "Mouse 6", 10.00));
+        large.add(new EItem(item.Mouse, "Mouse meno caro", 1));
     }
 
 
     //  #1
     @Test
-    public void testTotalPrice() {
+    public void testTotalPrice() throws BillException{
         List<EItem> lista = new ArrayList<EItem>();
         lista.add(new EItem(EItem.item.Processor, "processore", 100));
         lista.add(new EItem(EItem.item.Processor, "processore2", 100));
 
-        LocalDate nascita = LocalDate.of(1997, 11, 30);
-        User user = new User("Luca", "Busacca", nascita);
-        BillImpl impl = new BillImpl(order,user,LocalDateTime.of(1980, 01, 01, 19, 00, 00));
-
-        try {
-            impl.getOrderPrice(lista, user);
-        } catch (BillException e) {
-            assertEquals("lista null", e.getMessage());
-        }
+        double totalPrice = BillImpl.totalPrice(lista);
+        assertEquals(200, totalPrice, 0.0);
     }
 
     @Test
     public void testTotalPriceNullList() {
-        List<EItem> lista = null;
-        LocalDate nascita = LocalDate.of(1997, 11, 30);
-        User user = new User("Luca", "Busacca", nascita);
-        BillImpl impl = new BillImpl(order, user, LocalDateTime.of(1980,1,1,19,0,0));
-
-        try {
-            impl.getOrderPrice(lista, user);
-        } catch (BillException e) {
-            assertEquals("lista null", e.getMessage());
-        }
+        BillException thrown = assertThrows(BillException.class, () -> {
+            BillImpl.totalPrice(null);
+        });
+        
+        assertEquals("lista null", thrown.getMessage());
     }
 
     //  #2
@@ -130,6 +122,32 @@ public class BillTest {
         assertEquals(0, sconto, 0.0);
     }
 
+    // #3
+    @Test
+    public void testGiftCheapestMouse() {
+        try {
+            double cheapestMouse = BillImpl.giftCheapestMouse(large);
+            assertEquals(cheapestMouse, 1, 0.0);
+        } catch (BillException exception) {}
+    }
+
+    @Test
+    public void testNoCheapestMouseToGift() throws BillException{
+        List<EItem> not_ten_mouse = new ArrayList<EItem>();
+        not_ten_mouse.add(new EItem(EItem.item.Keyboard, "non mouse", 100));
+
+        double cheapestMouse = BillImpl.giftCheapestMouse(not_ten_mouse);
+        assertEquals(cheapestMouse, 0, 0.0);
+    }
+
+    @Test
+    public void testNullCheapestMouse() {
+        BillException thrown = assertThrows(BillException.class, () -> {
+            BillImpl.giftCheapestMouse(null);
+        });
+        assertEquals("lista null", thrown.getMessage());
+    }
+
     //  #4
     @Test
     public void testGiftCheapest() {
@@ -141,6 +159,36 @@ public class BillTest {
     public void testGiftCheapestFail() {
         double cheapest = BillImpl.giftCheapest(order1);
         assertEquals(cheapest, 0, 0);
+    }
+
+    //  #5
+    @Test
+    public void testTenPercentDiscount() throws BillException{
+        List<EItem> lista = new ArrayList<EItem>();
+        lista.add(new EItem(EItem.item.Keyboard, "non mouse", 500));
+        lista.add(new EItem(EItem.item.Keyboard, "tastiera 2", 550));
+
+        double discounted_price = BillImpl.tenPercentDiscount(lista);
+        assertEquals(discounted_price, 945, 0.0);
+    }
+
+    @Test
+    public void testNotTenPercentDiscount() throws BillException{
+        List<EItem> lista = new ArrayList<EItem>();
+        lista.add(new EItem(EItem.item.Keyboard, "non mouse", 500));
+        lista.add(new EItem(EItem.item.Keyboard, "tastiera 2", 400));
+
+        double discounted_price = BillImpl.tenPercentDiscount(lista);
+        assertEquals(discounted_price, 900, 0.0);
+    }
+
+    @Test
+    public void testNullTenPercentDiscount() {
+        BillException thrown = assertThrows(BillException.class, () -> {
+            BillImpl.tenPercentDiscount(null);
+        });
+
+        assertEquals("lista null", thrown.getMessage());
     }
 
     //  #6
