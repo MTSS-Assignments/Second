@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 public class User {
-    private String id;
+    protected String id;
     private String name;
     private String surname;
     private LocalDate date_of_birth;

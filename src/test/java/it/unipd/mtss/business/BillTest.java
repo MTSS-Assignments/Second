@@ -16,10 +16,9 @@ import it.unipd.mtss.model.EItem;
 import it.unipd.mtss.model.User;
 
 import org.junit.Test;
-import org.hamcrest.core.AnyOf;
 import org.junit.Before;
+
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
 
 public class BillTest {
     private List<EItem> order = new ArrayList<EItem>();
@@ -84,8 +83,7 @@ public class BillTest {
         large.add(new EItem(item.Mouse, "Mouse 3", 49.99));
     }
 
-
-    //  #1
+    // #1
     @Test
     public void testTotalPrice() {
         List<EItem> lista = new ArrayList<EItem>();
@@ -117,7 +115,7 @@ public class BillTest {
         }
     }
 
-    //  #2
+    // #2
     @Test
     public void testScontoProcessori() {
         double sconto = BillImpl.scontoProcessori(order);
@@ -130,7 +128,7 @@ public class BillTest {
         assertEquals(0, sconto, 0.0);
     }
 
-    //  #4
+    // #4
     @Test
     public void testGiftCheapest() {
         double cheapest = BillImpl.giftCheapest(order);
@@ -143,29 +141,27 @@ public class BillTest {
         assertEquals(cheapest, 0, 0);
     }
 
-    //  #6
+    // #6
     @Test
-    public void testMaxThirty() {
-        try {
-            BillImpl.maxThirty(large);
-        } catch (BillException e) {
-            assertEquals("Non è possibile avere un'ordinazione con più di 30 elementi", e.getMessage());
-        }
-        try {
-            BillImpl.maxThirty(order);
-        } catch (BillException e) {
-            assertEquals("Non è possibile avere un'ordinazione con più di 30 elementi", e.getMessage());
-        }
+    public void testMaxThirty() throws BillException {
+        BillImpl.maxThirty(order1);
     }
 
-    //  #8
+    @Test(expected = BillException.class)
+    public void testMaxThirtyException() throws BillException {
+        BillImpl.maxThirty(large);
+    }
+
+    // #8
     @Test
     public void testRndGiftCount() throws BillException {
         int count = 15;
         List<BillImpl> todayReport = new ArrayList<BillImpl>();
         while (count > 0) {
-            todayReport.add(new BillImpl (order1, new User("Cod","Ing",LocalDate.of(2008,01,01)), LocalDateTime.of(2022,05,19,19,05)));
-            todayReport.add(new BillImpl (order, new User("Cod","Ing",LocalDate.of(1980,01,01)), LocalDateTime.of(2022,05,22,15,25)));
+            todayReport.add(new BillImpl(order1, new User("Cod", "Ing", LocalDate.of(2008, 01, 01)),
+                    LocalDateTime.of(2022, 05, 19, 19, 05)));
+            todayReport.add(new BillImpl(order, new User("Cod", "Ing", LocalDate.of(1980, 01, 01)),
+                    LocalDateTime.of(2022, 05, 22, 15, 25)));
             count--;
         }
         double totale = BillImpl.rndGift(todayReport);
@@ -173,7 +169,7 @@ public class BillTest {
     }
 
     @Test
-    public void testRndGiftRemained() throws BillException {
+    public void testRndGiftRemained() throws BillException{
         List<BillImpl> todayReport = new ArrayList<BillImpl>();
         todayReport.add(new BillImpl (order1, new User("Cod","Ing",LocalDate.of(2008,01,01)), LocalDateTime.of(2022,05,19,19,05)));
         double totale = BillImpl.rndGift(todayReport);
