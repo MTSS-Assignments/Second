@@ -15,7 +15,6 @@ import it.unipd.mtss.model.EItem;
 import it.unipd.mtss.model.User;
 
 import org.junit.Test;
-import org.hamcrest.core.AnyOf;
 import org.junit.Before;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
@@ -141,7 +140,7 @@ public class BillTest {
     @Test
     public void testScontoProcessoriNullListException() {
         BillException thrown = assertThrows(BillException.class, () -> {
-            double sconto = BillImpl.scontoProcessori(orderNull);
+            BillImpl.scontoProcessori(orderNull);
         });
 
         assertEquals("lista null", thrown.getMessage());
@@ -188,7 +187,7 @@ public class BillTest {
     @Test
     public void testGiftCheapestNullListException() {
         BillException thrown = assertThrows(BillException.class, () -> {
-            double cheapest = BillImpl.giftCheapest(orderNull);
+            BillImpl.giftCheapest(orderNull);
         });
 
         assertEquals("lista null", thrown.getMessage());
@@ -286,7 +285,6 @@ public class BillTest {
     // #8
     @Test
     public void testRndGiftCounterEqualsToCount() throws BillException {
-
         double totale = BillImpl.rndGift(orderElementEleven, minorUser);
 
         assertEquals(10, totale, 0);
@@ -301,17 +299,17 @@ public class BillTest {
 
     @Test
     public void testRndGiftWithoutMinorsInList() throws BillException {
-    double totale = BillImpl.rndGift(threeMouses, eighteen);
+        double totale = BillImpl.rndGift(threeMouses, eighteen);
 
-    assertEquals(0, totale, 0);
+        assertEquals(0, totale, 0);
     }
 
     @Test
     public void testRndGiftNullListException() {
         BillException thrown = assertThrows(BillException.class, () -> {
             BillImpl.rndGift(orderNull, minorUser);
-    });
+        });
 
-    assertEquals("lista null", thrown.getMessage());
+        assertEquals("lista null", thrown.getMessage());
     }
 }

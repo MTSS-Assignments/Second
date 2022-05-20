@@ -17,20 +17,7 @@ import it.unipd.mtss.model.EItem;
 import it.unipd.mtss.model.User;
 
 public class BillImpl implements Bill {
-
-    private List<EItem> _list;
-    private User _user;
-    private LocalDateTime _date;
-
-    /**************************************************************************************
-     ***** Costruttore
-     **************************************************************************************/
-    public BillImpl(List<EItem> list, User user, LocalDateTime date) {
-        this._list = list;
-        this._user = user;
-        this._date = date;
-    }
-
+    
     /**************************************************************************************
      ***** Dato un elenco di articoli (Processori, Schede Madri, Tastiere, Mouse)
      ***** calcolare il totale #1
