@@ -24,14 +24,14 @@ public class UserTest {
     @Test
     public void testGetName() {
         String userName = user.getName();
+
         assertEquals("Mario", userName);
     }
 
     @Test
     public void testNullNameException() {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            User user = new User(null, "null", LocalDate.of(1980, 1, 1));
-            String name = user.getName();
+            new User(null, "null", LocalDate.of(1980, 1, 1));
         });
 
         assertEquals("Inserire il Nome.", thrown.getMessage());
@@ -40,14 +40,14 @@ public class UserTest {
     @Test
     public void testGetSurame() {
         String userSurname = user.getSurname();
+
         assertEquals("Rossi", userSurname);
     }
 
     @Test
     public void testNullSurnameException() {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            User user = new User("null", null, LocalDate.of(1980, 1, 1));
-            String name = user.getSurname();
+            new User("null", null, LocalDate.of(1980, 1, 1));
         });
 
         assertEquals("Inserire il Cognome.", thrown.getMessage());
@@ -56,6 +56,7 @@ public class UserTest {
     @Test
     public void testGetDateofBirth() {
         LocalDate userDateOfBirth = user.getDate_of_birth();
+
         assertEquals(LocalDate.of(1980, 1, 1), userDateOfBirth);
     }
 
@@ -63,6 +64,7 @@ public class UserTest {
     public void testTooOldDateOfBirthException() {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
             User user = new User("null", "null", LocalDate.of(1871, 1, 1));
+
             LocalDate birth = user.getDate_of_birth();
         });
 
@@ -73,6 +75,7 @@ public class UserTest {
     public void testIllegalDateOfBirthException() {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
             User user = new User("null", "null", LocalDate.of(3980, 1, 1));
+
             LocalDate birth = user.getDate_of_birth();
         });
 
@@ -83,8 +86,7 @@ public class UserTest {
     @Test
     public void testNullDateOfBirthException() {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            User user = new User("null", "null", null);
-            LocalDate birth = user.getDate_of_birth();
+            new User("null", "null", null);
         });
         
         assertEquals("Inserire la Data di nascita.", thrown.getMessage());

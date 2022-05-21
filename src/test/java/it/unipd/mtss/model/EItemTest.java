@@ -4,6 +4,7 @@
 ////////////////////////////////////////////////////////////////////
 package it.unipd.mtss.model;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,34 +37,37 @@ public class EItemTest {
 
     @Test
     public void testNegativePriceInput() {
-        try {
-            EItem item = new EItem(EItem.item.Processor, "processore bello", -1);
-        } catch (IllegalArgumentException exception) {
-            assertEquals("Il prezzo deve avre un valore >= 0", exception.getMessage());
-        }
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, 
+        () -> {
+            new EItem(EItem.item.Processor, "processore bello", -1);
+        });
+        
+        assertEquals("Il prezzo deve avre un valore >= 0", thrown.getMessage());
     }
     
     @Test
     public void testNullItemTypeInput() {
-        try {
-            EItem item = new EItem(null, "processore bello", 100);
-        } catch (IllegalArgumentException exception) {
-            assertEquals("Il campo itType non può essere null", exception.getMessage());
-        }
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, 
+        () -> {
+            new EItem(null, "processore bello", 100);
+        });
+
+        assertEquals("Il campo itType non può essere null", thrown.getMessage());
     }
 
     @Test
     public void testNullNameInput() {
-        try {
-            EItem item = new EItem(EItem.item.Processor, null , 100);
-        } catch (IllegalArgumentException exception) {
-            assertEquals("Il campo name non può essere vuoto", exception.getMessage());
-        }
+        IllegalArgumentException thrown1 = assertThrows(IllegalArgumentException.class, 
+        () -> {
+            new EItem(EItem.item.Processor, null , 100);
+        });
 
-        try {
-            EItem item2 = new EItem(EItem.item.Processor, "", 100);
-        } catch (IllegalArgumentException exception) {
-            assertEquals("Il campo name non può essere vuoto", exception.getMessage());
-        }
+        IllegalArgumentException thrown2 = assertThrows(IllegalArgumentException.class, 
+        () -> {
+            new EItem(EItem.item.Processor, "", 100);
+        });
+
+        assertEquals("Il campo name non può essere vuoto", thrown1.getMessage());
+        assertEquals("Il campo name non può essere vuoto", thrown2.getMessage());
     }
 }

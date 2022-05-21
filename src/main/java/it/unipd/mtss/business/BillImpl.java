@@ -7,7 +7,6 @@ package it.unipd.mtss.business;
 
 import java.security.SecureRandom;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,19 +16,6 @@ import it.unipd.mtss.model.EItem;
 import it.unipd.mtss.model.User;
 
 public class BillImpl implements Bill {
-
-    private List<EItem> _list;
-    private User _user;
-    private LocalDateTime _date;
-
-    /**************************************************************************************
-     ***** Costruttore
-     **************************************************************************************/
-    public BillImpl(List<EItem> list, User user, LocalDateTime date) {
-        this._list = list;
-        this._user = user;
-        this._date = date;
-    }
 
     /**************************************************************************************
      ***** Dato un elenco di articoli (Processori, Schede Madri, Tastiere, Mouse)
@@ -48,27 +34,26 @@ public class BillImpl implements Bill {
     }
 
     /**************************************************************************************
-     ***** Se vengono ordinati più di 5 Processore viene fatto uno sconto del 50% sul
-     ***** prezzo del Processori meno caro #2
+     ***** Se vengono ordinati più di 5 Processori viene fatto uno sconto del 50% sul
+     ***** prezzo del Processore meno caro #2
      **************************************************************************************/
     public static double scontoProcessori(List<EItem> itemsOrdered) throws BillException {
-        if (itemsOrdered != null) {
-            int count = 0;
-            double cheapest = Double.POSITIVE_INFINITY;
-            for (EItem it : itemsOrdered) {
-                if (it.getItemType() == EItem.item.Processor) {
-                    count++;
-                    if (cheapest == Double.POSITIVE_INFINITY || cheapest > it.getPrice()) {
-                        cheapest = it.getPrice();
-                    }
+        if (itemsOrdered == null) {
+            throw new BillException("lista null");
+        }
+        int count = 0;
+        double cheapest = Double.POSITIVE_INFINITY;
+        for (EItem it : itemsOrdered) {
+            if (it.getItemType() == EItem.item.Processor) {
+                count++;
+                if (cheapest == Double.POSITIVE_INFINITY || cheapest > it.getPrice()) {
+                    cheapest = it.getPrice();
                 }
             }
+        }
 
-            if (count >= 5) {
-                return cheapest / 2;
-            }
-        } else {
-            throw new BillException("lista null");
+        if (count > 5) {
+            return cheapest / 2;
         }
 
         return 0;
@@ -123,7 +108,7 @@ public class BillImpl implements Bill {
                 }
             }
 
-            if (countMouses == countKeyboards) {
+            if (countMouses + countKeyboards != 0 && countMouses == countKeyboards) {
                 return cheapest;
             }
         } else {
@@ -159,7 +144,7 @@ public class BillImpl implements Bill {
     public static void maxThirty(List<EItem> itemsOrdered) throws BillException {
         if (itemsOrdered != null) {
             if (itemsOrdered.size() > 30) {
-                throw new BillException("Non è possibile avere un'ordinazione con più di 30 elementi");
+                throw new BillException("Non è possibile avere un ordine con più di 30 elementi");
             }
         } else {
             throw new BillException("lista null");
@@ -189,49 +174,47 @@ public class BillImpl implements Bill {
      **** Prevedere la possibilità di regalare, in modo casuale, 10 ordini effettuati
      **** dalle 18:00 alle 19:00 da utenti minorenni differenti. #8
      **************************************************************************************/
-    public static double rndGift(List<EItem> itemsOrdered, User user) throws BillException {
+    public static double rndGift(List<EItem> itemsOrdered, User user) throws BillException, IllegalArgumentException {
         double totale = 0;
-        if (itemsOrdered != null) {
-            List<EItem> aux = new ArrayList<EItem>();
-
-            if (user.getDate_of_birth().isAfter(LocalDate.now().minus(18, ChronoUnit.YEARS))) {
-                for (EItem it : itemsOrdered) {
-                    aux.add(it);
-                }
-            }
-
-            int count = 10;
-            int remained = aux.size();
-
-            while (remained > 0 && count > 0) {
-                SecureRandom rand = new SecureRandom();
-                EItem randomElement = aux.get(rand.nextInt(remained));
-                totale += randomElement.getPrice();
-                remained--;
-                count--;
-            }
-
-        } else {
+        if (itemsOrdered == null) {
             throw new BillException("lista null");
+        }
+        List<EItem> aux = new ArrayList<EItem>();
+
+        if (user.getDate_of_birth().isAfter(LocalDate.now().minus(18, ChronoUnit.YEARS))) {
+            for (EItem it : itemsOrdered) {
+                aux.add(it);
+            }
+        }
+
+        int count = 10;
+        int remained = aux.size();
+
+        while (remained > 0 && count > 0) {
+            SecureRandom rand = new SecureRandom();
+            EItem randomElement = aux.get(rand.nextInt(remained));
+            totale += randomElement.getPrice();
+            aux.remove(randomElement);
+            remained--;
+            count--;
         }
         return totale;
     }
 
     @Override
-    public double getOrderPrice(List<EItem> itemsOrdered, User user) throws BillException {
+    public double getOrderPrice(List<EItem> itemsOrdered, User user) throws BillException, IllegalArgumentException {
+        if (itemsOrdered == null) {
+            throw new IllegalArgumentException("lista null");
+        } else if (user == null) {
+            throw new IllegalArgumentException("Utente non valido");
+        }
+
         // #6
         maxThirty(itemsOrdered);
 
-        // #1, #2, #3, #4, #8
-        double total = totalPrice(itemsOrdered) - scontoProcessori(itemsOrdered) - giftCheapestMouse(itemsOrdered)
-                - giftCheapest(itemsOrdered)- rndGift(itemsOrdered, user);
-
-        // #5
-        total = tenPercentDiscount(itemsOrdered);
-
-        // #7
-        total = addFees(itemsOrdered);
-
-        return total;
+        // #1, #2, #3, #4, #5, #7, #8
+        return totalPrice(itemsOrdered) - scontoProcessori(itemsOrdered) - giftCheapestMouse(itemsOrdered)
+                - giftCheapest(itemsOrdered) - tenPercentDiscount(itemsOrdered) + addFees(itemsOrdered)
+                - rndGift(itemsOrdered, user);
     }
 }
