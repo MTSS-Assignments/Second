@@ -23,6 +23,7 @@ public class BillTest {
     private List<EItem> orderNull = null;
     private List<EItem> order = new ArrayList<EItem>();
     private List<EItem> order1 = new ArrayList<EItem>();
+    private List<EItem> order2 = new ArrayList<EItem>();
     private List<EItem> orderElementEleven = new ArrayList<EItem>();
     private List<EItem> large = new ArrayList<EItem>();
     private List<EItem> threeMouses = new ArrayList<EItem>();
@@ -58,6 +59,8 @@ public class BillTest {
         order.add(new EItem(item.Keyboard, "Tastiera 5", 119.99));
 
         order1.add(new EItem(item.Motherboard, "MotherboardX", 119.99));
+
+        order2.add(new EItem(item.Mouse, "MouseX", 80));
 
         for (int i = 0; i < 11; i++) {
             orderElementEleven.add(new EItem(item.Keyboard, "Tastiera", 1));
@@ -191,15 +194,19 @@ public class BillTest {
     @Test
     public void testGiftCheapest() throws BillException {
         double cheapest = BillImpl.giftCheapest(order);
-        double zero = BillImpl.giftCheapest(order1);
 
         assertEquals(14.99, cheapest, 0);
-        assertEquals(0, zero, 0);
     }
 
     @Test
-    public void testGiftCheapestFail() throws BillException {
+    public void testGiftCheapestThereIsNoMouseOrKeybord() throws BillException {
         double cheapest = BillImpl.giftCheapest(order1);
+        assertEquals(0, cheapest, 0);
+    }
+
+    @Test
+    public void testGiftCheapestNumberOfMousesIsDifferentFromNumberOfKeyboards() throws BillException {
+        double cheapest = BillImpl.giftCheapest(order2);
         assertEquals(0, cheapest, 0);
     }
 

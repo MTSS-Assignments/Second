@@ -181,7 +181,7 @@ public class BillImpl implements Bill {
         }
         List<EItem> aux = new ArrayList<EItem>();
 
-        if (user.getDate_of_birth().isAfter(LocalDate.now().minus(18, ChronoUnit.YEARS))) {
+        if (user.getDateOfBirth().isAfter(LocalDate.now().minus(18, ChronoUnit.YEARS))) {
             for (EItem it : itemsOrdered) {
                 aux.add(it);
             }

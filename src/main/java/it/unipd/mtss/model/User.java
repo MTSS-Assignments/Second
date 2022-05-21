@@ -57,7 +57,7 @@ public class User {
         return this.surname;
     }
 
-    public LocalDate getDate_of_birth() {
+    public LocalDate getDateOfBirth() {
         return this.date_of_birth;
     }
 }

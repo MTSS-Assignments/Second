@@ -55,7 +55,7 @@ public class UserTest {
 
     @Test
     public void testGetDateofBirth() {
-        LocalDate userDateOfBirth = user.getDate_of_birth();
+        LocalDate userDateOfBirth = user.getDateOfBirth();
 
         assertEquals(LocalDate.of(1980, 1, 1), userDateOfBirth);
     }
@@ -65,7 +65,7 @@ public class UserTest {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
             User user = new User("null", "null", LocalDate.of(1871, 1, 1));
 
-            LocalDate birth = user.getDate_of_birth();
+            LocalDate birth = user.getDateOfBirth();
         });
 
         assertEquals("La data di nascita inserita è troppo indietro nel tempo.", thrown.getMessage());
@@ -76,7 +76,7 @@ public class UserTest {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
             User user = new User("null", "null", LocalDate.of(3980, 1, 1));
 
-            LocalDate birth = user.getDate_of_birth();
+            LocalDate birth = user.getDateOfBirth();
         });
 
         assertEquals("La data di nascita deve essere precedente alla data odierna.", thrown.getMessage());
