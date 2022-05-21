@@ -26,9 +26,11 @@ public class BillTest {
     private List<EItem> orderElementEleven = new ArrayList<EItem>();
     private List<EItem> large = new ArrayList<EItem>();
     private List<EItem> threeMouses = new ArrayList<EItem>();
+    private List<EItem> moreTenMouses = new ArrayList<EItem>();
+    private List<EItem> orderTest = new ArrayList<EItem>();
+
     private User minorUser = new User("", "", LocalDate.now().minus(14, ChronoUnit.YEARS));
     private User eighteen = new User("", "", LocalDate.now().minus(18, ChronoUnit.YEARS));
-    private List<EItem> moreTenMouses = new ArrayList<EItem>();
 
     @Before
     public void inizializeOrders() {
@@ -37,6 +39,8 @@ public class BillTest {
         order.add(new EItem(item.Processor, "Processore 3", 299.99));
         order.add(new EItem(item.Processor, "Processore 4", 349.99));
         order.add(new EItem(item.Processor, "Processore 5", 469.99));
+        order.add(new EItem(item.Processor, "Processore 5", 469.99));
+
         order.add(new EItem(item.Mouse, "Mouse 2", 19.99));
         order.add(new EItem(item.Mouse, "Mouse 1", 14.99));
         order.add(new EItem(item.Mouse, "Mouse 3", 49.99));
@@ -53,7 +57,7 @@ public class BillTest {
         order.add(new EItem(item.Keyboard, "Tastiera 4", 99.99));
         order.add(new EItem(item.Keyboard, "Tastiera 5", 119.99));
 
-        order1.add(new EItem(item.Keyboard, "Tastiera 5", 119.99));
+        order1.add(new EItem(item.Motherboard, "MotherboardX", 119.99));
 
         for (int i = 0; i < 11; i++) {
             orderElementEleven.add(new EItem(item.Keyboard, "Tastiera", 1));
@@ -101,6 +105,18 @@ public class BillTest {
             moreTenMouses.add(new EItem(item.Mouse, "MouseY", 50));
             
             moreTenMouses.add(new EItem(item.Mouse, "MouseZ", 25));
+        }
+
+        for (int i = 0; i < 6; i++) {
+            orderTest.add(new EItem(item.Processor, "ProcessorX", 300));
+        }
+
+        for (int i = 0; i < 11; i++) {
+            orderTest.add(new EItem(item.Mouse, "MouseX", 80));
+        }
+
+        for (int i = 0; i < 11; i++) {
+            orderTest.add(new EItem(item.Keyboard, "KeybordX", 100));
         }
     }
 
@@ -175,7 +191,10 @@ public class BillTest {
     @Test
     public void testGiftCheapest() throws BillException {
         double cheapest = BillImpl.giftCheapest(order);
+        double zero = BillImpl.giftCheapest(order1);
+
         assertEquals(14.99, cheapest, 0);
+        assertEquals(0, zero, 0);
     }
 
     @Test
@@ -230,7 +249,7 @@ public class BillTest {
             BillImpl.maxThirty(large);
         });
 
-        assertEquals("Non è possibile avere un'ordinazione con più di 30 elementi", thrown.getMessage());
+        assertEquals("Non è possibile avere un ordine con più di 30 elementi", thrown.getMessage());
     }
 
     @Test
@@ -311,5 +330,37 @@ public class BillTest {
         });
 
         assertEquals("lista null", thrown.getMessage());
+    }
+
+    //GET ORDER PRICE FUNCTION TESTS
+    @Test
+    public void testGetOrderPriceIllegalListException() {
+        List<EItem> order = null;
+        BillImpl bill = new BillImpl();
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+            bill.getOrderPrice(order, eighteen);
+        });
+
+        assertEquals("lista null", thrown.getMessage());
+    }
+
+    @Test
+    public void testGetOrderPriceIllegalUserException() {
+        User user = null;
+        BillImpl bill = new BillImpl();
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+            bill.getOrderPrice(order, user);
+        });
+
+        assertEquals("Utente non valido", thrown.getMessage());
+    }
+
+    @Test
+    public void testGetOrderPrice() throws BillException, IllegalArgumentException {
+        BillImpl bill = new BillImpl();
+
+        double price = bill.getOrderPrice(orderTest, eighteen);
+
+        assertEquals(3848, price, 0);
     }
 }
