@@ -6,10 +6,11 @@
 package it.unipd.mtss.model;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 public class User {
-    private String id;
+    protected String id;
     private String name;
     private String surname;
     private LocalDate date_of_birth;
@@ -34,9 +35,9 @@ public class User {
         if(_date_of_birth == null) {
             throw new IllegalArgumentException("Inserire la Data di nascita.");
         }
-        // else if(_date_of_birth < LocalDate.now().minusYears(100)){
-        //     throw new IllegalArgumentException("La data di nascita inserita è troppo indietro nel tempo.");
-        // }
+        else if(_date_of_birth.isBefore(LocalDate.now().minus(150, ChronoUnit.YEARS))) {
+            throw new IllegalArgumentException("La data di nascita inserita è troppo indietro nel tempo.");
+        }
         else if(_date_of_birth.isBefore(LocalDate.now())) {
             this.date_of_birth = _date_of_birth;
         }else {
@@ -56,7 +57,7 @@ public class User {
         return this.surname;
     }
 
-    public LocalDate getDate_of_birth() {
+    public LocalDate getDateOfBirth() {
         return this.date_of_birth;
     }
 }
